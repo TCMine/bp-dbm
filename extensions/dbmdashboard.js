@@ -76,36 +76,42 @@ module.exports = {
           overflow: auto;
           padding: 10px;
       }
-      
+
       .box {
           margin: 10px;
           padding: 10px;
           background-color: #1e1e1e;
           border-radius: 5px;
       }
-      
+
       .error-box {
           border: 1px solid red;
           display: none;
       }
-      
+
       .message-box {
           display: none;
           border: 1px solid green;
       }
-      
+
       .title {
           margin: 0px;
           padding: 0px;
           font-size: 20px;
       }
-      
+
+      .subtitle {
+          margin: 0px;
+          padding: 0px;
+          font-size: 15px;
+      }
+
       .text {
           margin: 0px;
           padding: 0px;
           font-size: 12px;
       }
-      
+
       .input {
           padding: 5px 10px;
           margin: 5px;
@@ -115,8 +121,9 @@ module.exports = {
           border: 1px solid #1e1e1e;
           background-color: #292929;
           color: white;
+          height: 30px;
       }
-      
+
       .button {
           border-radius: 5px;
           background-color: #1e1e1e;
@@ -126,15 +133,15 @@ module.exports = {
           margin: 5px;
           margin-left: 0px;
       }
-      
+
       .button:hover {
           background-color: #292929;
       }
     </style>
     <div class="container">
       <div class="box">
-        <h1 class="title">DBM Dashboard</h1>
-        <p class="text">This is the extension for <a href="https://dbmdashboard.com">DBM Dashboard</a>.</p>
+        <h1 class="title">Bot Panel</h1>
+        <p class="text">This is the extension for <a onclick="require('electron').shell.openExternal('https://botpanel.xyz')">Bot Panel <i class="icon external"></i></a>.</p>
       </div>
       <div class="box error-box" id="error-container">
         <h1 class="title">Error</h1>
@@ -143,33 +150,60 @@ module.exports = {
       <div class="box message-box" id="message-container">
         <p class="text" id="message"></p>
       </div>
-      
+
       <div class="box">
         <h3 class="title">Authentication</h3>
         <p class="text">Please enter your application id and secret into the boxes below</p>
-        
+
         <input id="applicationId" class="input" type="text" placeholder="Application ID">
         <input id="applicationSecret" class="input" type="password" placeholder="Application Secret">
-        
-        <input type="button" class="button" value="Save Configuration" id="saveButton">
+
+        <br>
+
+        <h1 class="subtitle" style="margin-top: 10px;">Dashboard Variable Input</h1>
+        <p class="text">Variables are used for headers and select components on the dashboard.</p>
+        <div style="display:flex;">
+          <select id="varSelectType" onchange="document.getElementById('var_Input').value = varValueTable[this.value] ?? ''" class="input">
+            <option value="0">None</option>
+            <option value="1">Use Server Variable</option>
+            <option value="2">Use Global Variable</option>
+            <option value="3">Call Command/Event</option>
+          </select>
+
+          <div id="div-var_Input">
+            <input onchange="varValueTable[document.getElementById('varSelectType').value] = this.value" id="var_Input" class="input">
+          </div>
+          <div style="flex-shrink: 1" id="div-var_tempvar">
+            <input id="var_tempvar" style="margin-left:2px" class="input" placeholder="Temp Var"></input>
+            <br>
+          </div>
+        </div>
+        <h id="varNote" class="text" style="margin-up:"300px" margin-left:-905px">The specified temp var will be used for the dashboard's variables.</h>
+
+        <div style="margin-top: 5px; text-align:center">
+          <input type="button" class="button" value="Save Configuration" id="saveButton">
+        </div>
       </div>
-      
+
       <div style="w-full; height: 1px; background-color: white; margin: 10px;"></div>
-      
+
       <div class="box">
         <h1 class="title">Developer Options</h1>
-        
-        <h3 class="title" style="margin-top: 10px;">WebSocket URL</h3>
+
+        <h3 class="subtitle" style="margin-top: 10px;">WebSocket URL</h3>
         <p class="text">For development purposes only. Do not edit this value.</p>
         <input id="websocketUrl" class="input" type="text" placeholder="WebSocket URL">
-        
-        <h3 class="title" style="margin-top: 10px;">Debug Mode</h3>
+
+        <h3 class="subtitle" style="margin-top: 10px;">Debug Mode</h3>
         <p class="text">Enable or disable debug logging.</p>
         <select id="debugMode" class="input">
           <option value="1">Enable</option>
           <option value="0">Disable</option>
         </select>
-        
+
+
+
+
         <input type="button" class="button" value="Save Development Options" id="devSaveButton">
       </div>
     </div>
@@ -185,11 +219,18 @@ module.exports = {
   //---------------------------------------------------------------------
 
   init: function (document, globalObject) {
+
+    varValueTable = {}
+
     const secret = document.getElementById("applicationSecret");
     const id = document.getElementById("applicationId");
 
     const websocketUrl = document.getElementById("websocketUrl");
     const debugMode = document.getElementById("debugMode");
+
+    const varSelectType = document.getElementById("varSelectType")
+    const varInput = document.getElementById("var_Input");
+    const varTempVar = document.getElementById("var_tempvar");
 
     const error = document.getElementById("error");
     const message = document.getElementById("message");
@@ -201,7 +242,32 @@ module.exports = {
 
       websocketUrl.value = data.websocketUrl || "wss://wss.botpanel.xyz";
       debugMode.value = data.debugMode || "0";
+
+      varSelectType.value = data.varSelectType || "0"
+      varInput.value = data.varInput || ""
+      varTempVar.value = data.varTempVar || ""
+
+      varValueTable[varSelectType.value] = varInput.value
     }
+
+    function updateVarInput() {
+      const div_input = document.getElementById("div-var_Input");
+      const div_tempvar = document.getElementById("div-var_tempvar");
+      const varNote = document.getElementById("varNote");
+      div_input.style = "display:none";
+      div_tempvar.style = "display:none"
+      varNote.style = "display:none"
+      varSelectType.style = ""
+      if (varSelectType.value >= 1) {
+        div_input.style = ""
+        varSelectType.style = "width: 60%"
+        if (varSelectType.value == 1 || varSelectType.value == 2) varInput.placeholder = "Variable name";
+        if (varSelectType.value == 3) varInput.placeholder = "ID", div_tempvar.style = "", varNote.style = "";
+      }
+    }
+    updateVarInput()
+
+    varSelectType.addEventListener("change", updateVarInput)
 
     document.getElementById("devSaveButton").addEventListener("click", () => {
       if (!websocketUrl.value) {
@@ -261,6 +327,9 @@ module.exports = {
 
       writeObject.secret = secret.value;
       writeObject.id = id.value;
+      writeObject.varSelectType = varSelectType.value;
+      writeObject.varInput = varInput.value;
+      writeObject.varTempVar = varSelectType.value == 3 ? varTempVar.value : "";
 
       if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
       fs.writeFileSync(filePath, JSON.stringify(writeObject));
@@ -324,6 +393,11 @@ module.exports = {
       const data = require(config);
       applicationId = data.id;
       applicationSecret = data.secret;
+      variableOptions = {
+        option: data.varSelectType,
+        input: data.varInput,
+        tempVar: data.varTempVar,
+      }
       debug = data.debugMode === "1";
       wssURL = data.websocketUrl || "wss://wss.botpanel.xyz";
     } else {
@@ -427,7 +501,7 @@ module.exports = {
             serverData = JSON.parse(serverData);
           } catch (e) {
             return log({ message: `Error parsing server data: ${e}`, isErr: true });
-          }
+          };
 
           let roles, channels;
           if (include.some(i => ["textChannels", "voiceChannels", "categories"].includes(i)))
@@ -441,12 +515,38 @@ module.exports = {
 
           roles = roles ? roles.map(r => { return { id: r.id, name: r.name, position: r.position, managed: r.managed } }) : [];
 
+          let variables = null;
+          let cache = new DBM.Actions.ActionsCache([], guild);
+
+          if (variableOptions.option && variableOptions.option > 0) {
+            switch(variableOptions.option) {
+              case "1": // server
+                variables = DBM.Actions.getVariable(2, variableOptions.input, cache);
+                break;
+              case "2": // global
+                variables = DBM.Actions.getVariable(3, variableOptions.input, cache);
+                break;
+              case "3": // command/event
+                let actions;
+                const allData = DBM.Files.data.commands.concat(DBM.Files.data.events);
+                for (let i = 0; i < allData.length; i++) {
+                  if (allData[i]?._id === variableOptions.input) {
+                    actions = allData[i].actions;
+                    break;
+                  }
+                }
+                DBM.Actions.executeSubActions(actions, cache, () => {variables = DBM.Actions.getVariable(1, variableOptions.tempVar, cache)});
+                break;
+            };
+          };
+
           bot.dashboard.ws.sendPacket({
             op: OPCODES.REQUEST_GUILD_DATA,
             d: {
               interactionId,
               data: serverData[guildId] || {},
               inGuild: !!guild,
+              variables: variables ?? null,
               ...(roles && { roles }),
               ...(textChannels && { textChannels }),
               ...(voiceChannels && { voiceChannels }),
