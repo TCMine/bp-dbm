@@ -3,7 +3,7 @@ module.exports = {
 
   displayName: "Store Dashboard Interaction Info",
 
-  section: "DBM Dashboard",
+  section: "Bot Panel",
 
   subtitle(data, presets) {
     const info = [
@@ -51,7 +51,7 @@ module.exports = {
     <retrieve-from-variable dropdownLabel="Source Interaction" selectId="sourceInteraction" variableContainerId="varNameContainer" variableInputId="varName"></retrieve-from-variable>
 
     <br><br><br>
-    
+
     <div style="padding-top: 8px;">
       <span class="dbminputlabel">Source Info</span><br>
       <select id="info" class="round">
@@ -63,9 +63,9 @@ module.exports = {
         <option value="5">Input Type</option>
       </select>
     </div>
-    
+
     <br>
-    
+
     <store-in-variable dropdownLabel="Store In" selectId="storage" variableContainerId="varNameContainer2" variableInputId="varName2"></store-in-variable>`;
   },
 
