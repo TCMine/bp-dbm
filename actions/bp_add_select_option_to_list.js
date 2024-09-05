@@ -86,7 +86,7 @@ module.exports = {
 
 <div style="padding-top: 8px;">
 	<span class="dbminputlabel">Icon ‒ <a onclick="require('electron').shell.openExternal('https://react-icons.github.io/react-icons/icons/fa6/')" class="ui">Predefined Icons <i class="icon external"></i></a></span><br>
-	<input id="icon" placeholder="Icon name (e.g. 'FaStar') or Image URL" class="round" type="text" name="is-eval">
+	<input id="icon" onchange="this.value = this.value.replace('fa6 ', '')" placeholder="Icon name (e.g. 'FaStar') or Image URL" class="round" type="text" name="is-eval">
 </div>
 <div style="padding-top: 16px;">
 	<span class="dbminputlabel">Name</span><br>
