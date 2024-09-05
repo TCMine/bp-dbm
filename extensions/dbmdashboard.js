@@ -161,7 +161,7 @@ module.exports = {
         <br>
 
         <h1 class="subtitle" style="margin-top: 10px;">Dashboard Variable Input</h1>
-        <p class="text">Variables are used for headers and select components on the dashboard.</p>
+        <p class="text">Variables are used for components on the dashboard.</p>
         <div style="display:flex;">
           <select id="varSelectType" onchange="document.getElementById('var_Input').value = varValueTable[this.value] ?? ''" class="input">
             <option value="0">None</option>
@@ -178,7 +178,7 @@ module.exports = {
             <br>
           </div>
         </div>
-        <h id="varNote" class="text" style="margin-up:"300px" margin-left:-905px">The specified temp var will be used for the dashboard's variables.</h>
+        <h id="varNote" class="text" style="margin-up:"300px" margin-left:-905px">The specified temp variable will be used for the dashboard's variables.</h>
 
         <div style="margin-top: 5px; text-align:center">
           <input type="button" class="button" value="Save Configuration" id="saveButton">
