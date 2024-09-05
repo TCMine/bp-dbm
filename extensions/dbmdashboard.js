@@ -243,38 +243,38 @@ module.exports = {
       websocketUrl.value = data.websocketUrl || "wss://wss.botpanel.xyz";
       debugMode.value = data.debugMode || "0";
 
-      varSelectType.value = data.varSelectType || "0";
-      varInput.value = data.varInput || "";
-      varTempVar.value = data.varTempVar || "";
+      varSelectType.value = data.varSelectType || "0"
+      varInput.value = data.varInput || ""
+      varTempVar.value = data.varTempVar || ""
 
-      varValueTable[varSelectType.value] = varInput.value;
-    };
+      varValueTable[varSelectType.value] = varInput.value
+    }
 
     function updateVarInput() {
       const div_input = document.getElementById("div-var_Input");
       const div_tempvar = document.getElementById("div-var_tempvar");
       const varNote = document.getElementById("varNote");
       div_input.style = "display:none";
-      div_tempvar.style = "display:none";
-      varNote.style = "display:none";
-      varSelectType.style = "";
+      div_tempvar.style = "display:none"
+      varNote.style = "display:none"
+      varSelectType.style = ""
       if (varSelectType.value >= 1) {
-        div_input.style = "";
-        varSelectType.style = "width: 60%";
+        div_input.style = ""
+        varSelectType.style = "width: 60%"
         if (varSelectType.value == 1 || varSelectType.value == 2) varInput.placeholder = "Variable name";
         if (varSelectType.value == 3) varInput.placeholder = "ID", div_tempvar.style = "", varNote.style = "";
-      };
-    };
-    updateVarInput();
+      }
+    }
+    updateVarInput()
 
-    varSelectType.addEventListener("change", updateVarInput);
+    varSelectType.addEventListener("change", updateVarInput)
 
     document.getElementById("devSaveButton").addEventListener("click", () => {
       if (!websocketUrl.value) {
         error.innerText = "Please ensure all fields have a value.";
         error.parentElement.style.display = "block";
         return;
-      };
+      }
 
       const writeObject = {};
       const filePath = join(__dirname, "../", "dashboard-config.json");
@@ -306,7 +306,7 @@ module.exports = {
         error.innerText = "Please ensure all fields have a value.";
         error.parentElement.style.display = "block";
         return;
-      };
+      }
 
       const writeObject = {};
 
@@ -413,6 +413,7 @@ module.exports = {
 
       log({ message: "Mounted." });
       let isReconnecting = false;
+      let heartbeat;
 
       const connect = () => {
         log({ message: "Attempting to connect to dashboard..." });
@@ -434,6 +435,7 @@ module.exports = {
         });
 
         ws.on("close", () => {
+          clearInterval(heartbeat)
           if (!isReconnecting) {
             log({ message: "Disconnected from dashboard." });
             if (allowReconnect) {
@@ -482,7 +484,8 @@ module.exports = {
         },
         [OPCODES.AUTH_SUCCESS]: ({ data, ws }) => {
           log({ message: `Successfully authenticated with application "${data.d.name}" (${applicationId})!` });
-          setInterval(() => {
+          clearInterval(heartbeat)
+          heartbeat = setInterval(() => {
             bot.dashboard.ws.sendPacket({
               op: OPCODES.HEARTBEAT
             });
