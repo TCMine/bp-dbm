@@ -236,7 +236,13 @@ module.exports = {
     const message = document.getElementById("message");
 
     if (fs.existsSync(join(__dirname, "../", "dashboard-config.json"))) {
-      const data = JSON.parse(fs.readFileSync(join(__dirname, "../", "dashboard-config.json"), "utf-8"));
+      let data;
+      try {
+        data = JSON.parse(fs.readFileSync(join(__dirname, "../", "dashboard-config.json"), "utf-8"));
+      } catch (e) {
+        console.log("Failed to load config.", e);
+        data = {};
+      };
       secret.value = data.secret || "";
       id.value = data.id || "";
 
