@@ -141,7 +141,7 @@ module.exports = {
     <div class="container">
       <div class="box">
         <h1 class="title">Bot Panel</h1>
-        <p class="text">This is the extension for <a onclick="require('electron').shell.openExternal('https://botpanel.xyz')">Bot Panel <i class="icon external"></i></a>.</p>
+        <p class="text">This is the extension for <a onclick="window.globalOpenLink('https://botpanel.xyz')">Bot Panel <i class="icon external"></i></a>.</p>
       </div>
       <div class="box error-box" id="error-container">
         <h1 class="title">Error</h1>
