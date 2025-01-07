@@ -179,8 +179,7 @@ module.exports = {
           </div>
         </div>
         <h id="varNote" class="text" style="margin-up:"300px" margin-left:-905px">The specified temp variable will be used for the dashboard's variables.</h>
-        <br>
-        <dbm-checkbox style="padding-top: 10px; padding-bottom: 10px" inputid="runAsGuild" label="Run as guild (enable to use guild-specific actions and <code>\$\{server}</code>)"></dbm-checkbox>
+
         <div style="margin-top: 5px; text-align:center">
           <input type="button" class="button" value="Save Configuration" id="saveButton">
         </div>
@@ -253,7 +252,6 @@ module.exports = {
       varSelectType.value = data.varSelectType || "0";
       varInput.value = data.varInput || "";
       varTempVar.value = data.varTempVar || "";
-      runAsGuild.checked = data.runAsGuild ?? false;
 
       varValueTable[varSelectType.value] = varInput.value;
     };
@@ -338,7 +336,6 @@ module.exports = {
       writeObject.varSelectType = varSelectType.value;
       writeObject.varInput = varInput.value;
       writeObject.varTempVar = varSelectType.value == 3 ? varTempVar.value : "";
-      writeObject.runAsGuild = runAsGuild.checked;
 
       if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath, { recursive: true });
       fs.writeFileSync(filePath, JSON.stringify(writeObject));
@@ -406,8 +403,7 @@ module.exports = {
         option: data.varSelectType,
         input: data.varInput,
         tempVar: data.varTempVar,
-    };
-      runAsGuild = data.runAsGuild;
+      }
       debug = data.debugMode === "1";
       wssURL = data.websocketUrl || "wss://wss.botpanel.xyz";
     } else {
@@ -530,7 +526,6 @@ module.exports = {
 
           let variables = null;
           let cache = new DBM.Actions.ActionsCache([], guild);
-          if (runAsGuild) cache.server = guild;
 
           if (variableOptions.option && variableOptions.option > 0) {
             switch(variableOptions.option) {
